@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Dashboard - Gestion de Stock</title>
+</head>
+<body>
+    <section>
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Dashboard</h1>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Produits</h5>
+                        <p class="card-text display-4" th:text="${products.size()}">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Catégories</h5>
+                        <p class="card-text display-4" th:text="${categories.size()}">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Produits en Stock Bas</h5>
+                        <p class="card-text display-4" th:text="${lowStockProducts.size()}">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2>Produits en Stock Bas</h2>
+        <div class="table-responsive">
+            <table class="table table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>SKU</th>
+                        <th>Stock</th>
+                        <th>Min Stock</th>
+                        <th>Prix d'Achat</th>
+                        <th>Prix de Vente</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="product : ${lowStockProducts}">
+                        <td th:text="${product.id}">1</td>
+                        <td th:text="${product.name}">Produit</td>
+                        <td th:text="${product.sku}">SKU-001</td>
+                        <td th:text="${product.stockQuantity}">5</td>
+                        <td th:text="${product.minStockLevel}">10</td>
+                        <td th:text="${product.purchasePrice}">100.00</td>
+                        <td th:text="${product.sellingPrice}">150.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</body>
+</html>
