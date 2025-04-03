@@ -1,4 +1,4 @@
-package com.hopniel.gestionstock.model;
+package com.hopniel.gestionstock.model.entity;
 
 import jakarta.persistence.*;
 
@@ -10,12 +10,9 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(length = 20, unique = true)
     private String name;
 
-    private String description;
-
-    // Constructors
     public Role() {
     }
 
@@ -23,12 +20,6 @@ public class Role {
         this.name = name;
     }
 
-    public Role(String name, String description) {
-        this.name = name;
-        this.description = description;
-    }
-
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -43,13 +34,5 @@ public class Role {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 }

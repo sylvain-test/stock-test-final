@@ -1,0 +1,40 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# H2 database files
+*.db
+*.mv.db
+*.trace.db
+*.h2.server.properties
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# OS specific files
+.DS_Store
+.Trash/
+.CFUserTextEncoding
+.lesshst
+.zsh_history
+.zsh_sessions/
+.zshrc
+Pictures/
+Applications/
+Desktop/
+Documents/
+Downloads/
+Library/
+Movies/
+Music/
+
+# Project specific
+*.sql
+*.zip
+*.tgz

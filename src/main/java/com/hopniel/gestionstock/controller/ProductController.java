@@ -1,12 +1,8 @@
 package com.hopniel.gestionstock.controller;
 
-import com.hopniel.gestionstock.dto.ProductCreateDTO;
-import com.hopniel.gestionstock.dto.ProductResponseDTO;
-import com.hopniel.gestionstock.dto.ProductUpdateDTO;
+import com.hopniel.gestionstock.model.entity.Product;
 import com.hopniel.gestionstock.service.ProductService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,65 +19,46 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @PostMapping
-    public ResponseEntity<ProductResponseDTO> createProduct(@Valid @RequestBody ProductCreateDTO productCreateDTO) {
-        ProductResponseDTO createdProduct = productService.createProduct(productCreateDTO);
-        return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
+    @GetMapping
+    public List<Product> getAllProducts() {
+        return productService.getAllProducts();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable Long id) {
-        ProductResponseDTO product = productService.getProductById(id);
-        if (product != null) {
-            return new ResponseEntity<>(product, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
+        return productService.getProductById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/sku/{sku}")
-    public ResponseEntity<ProductResponseDTO> getProductBySku(@PathVariable String sku) {
-        ProductResponseDTO product = productService.getProductBySku(sku);
-        if (product != null) {
-            return new ResponseEntity<>(product, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @GetMapping("/category/{categoryId}")
+    public List<Product> getProductsByCategory(@PathVariable Long categoryId) {
+        return productService.getProductsByCategory(categoryId);
     }
 
-    @GetMapping
-    public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
-        List<ProductResponseDTO> products = productService.getAllProducts();
-        return new ResponseEntity<>(products, HttpStatus.OK);
-    }
-
-    @GetMapping("/low-stock")
-    public ResponseEntity<List<ProductResponseDTO>> getLowStockProducts(@RequestParam(defaultValue = "10") int threshold) {
-        List<ProductResponseDTO> products = productService.getLowStockProducts(threshold);
-        return new ResponseEntity<>(products, HttpStatus.OK);
-    }
-    
-    @GetMapping("/low-stock-alert")
-    public ResponseEntity<List<ProductResponseDTO>> getLowStockProductsAlert() {
-        List<ProductResponseDTO> products = productService.getLowStockProductsAlert();
-        return new ResponseEntity<>(products, HttpStatus.OK);
+    @PostMapping
+    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+        Product savedProduct = productService.saveProduct(product);
+        return ResponseEntity.ok(savedProduct);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductUpdateDTO productUpdateDTO) {
-        ProductResponseDTO updatedProduct = productService.updateProduct(id, productUpdateDTO);
-        return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
-    }
-
-    @PatchMapping("/{id}/stock")
-    public ResponseEntity<ProductResponseDTO> updateProductStock(@PathVariable Long id, @RequestParam Integer quantity) {
-        ProductResponseDTO updatedProduct = productService.updateStock(id, quantity);
-        return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
+        return productService.getProductById(id)
+                .map(existingProduct -> {
+                    product.setId(id);
+                    return ResponseEntity.ok(productService.saveProduct(product));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return productService.getProductById(id)
+                .map(product -> {
+                    productService.deleteProduct(id);
+                    return ResponseEntity.ok().<Void>build();
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 }

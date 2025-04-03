@@ -1,6 +1,6 @@
 package com.hopniel.gestionstock.repository;
 
-import com.hopniel.gestionstock.model.Role;
+import com.hopniel.gestionstock.model.entity.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 

@@ -1,6 +1,7 @@
-package com.hopniel.gestionstock.model;
+package com.hopniel.gestionstock.model.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,10 +21,18 @@ public class User {
 
     @Column(nullable = false, unique = true)
     private String email;
-
+    
+    @Column(name = "full_name")
     private String fullName;
-
+    
+    @Column(name = "enabled")
     private boolean enabled = true;
+    
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -33,18 +42,26 @@ public class User {
     )
     private Set<Role> roles = new HashSet<>();
 
-    // Constructors
     public User() {
     }
 
-    public User(String username, String password, String email, String fullName) {
+    public User(String username, String email, String password) {
         this.username = username;
-        this.password = password;
         this.email = email;
-        this.fullName = fullName;
+        this.password = password;
+    }
+    
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
     public Long getId() {
         return id;
     }
@@ -76,7 +93,7 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
-
+    
     public String getFullName() {
         return fullName;
     }
@@ -84,13 +101,29 @@ public class User {
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
-
+    
     public boolean isEnabled() {
         return enabled;
     }
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+    
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public Set<Role> getRoles() {

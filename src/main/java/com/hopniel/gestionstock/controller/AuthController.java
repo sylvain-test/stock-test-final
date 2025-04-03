@@ -1,55 +1,43 @@
 package com.hopniel.gestionstock.controller;
 
-import com.hopniel.gestionstock.model.Role;
-import com.hopniel.gestionstock.model.User;
-import com.hopniel.gestionstock.repository.RoleRepository;
-import com.hopniel.gestionstock.service.UserService;
+import com.hopniel.gestionstock.model.dto.LoginRequest;
+import com.hopniel.gestionstock.model.dto.JwtAuthenticationResponse;
+import com.hopniel.gestionstock.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
+@RequestMapping("/api/auth")
 public class AuthController {
 
-    private final UserService userService;
-    private final RoleRepository roleRepository;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     @Autowired
-    public AuthController(UserService userService, RoleRepository roleRepository) {
-        this.userService = userService;
-        this.roleRepository = roleRepository;
-    }
+    private JwtTokenProvider tokenProvider;
 
-    @GetMapping("/login")
-    public String login() {
-        return "login";
-    }
+    @PostMapping("/login")
+    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUsername(),
+                        loginRequest.getPassword()
+                )
+        );
 
-    @GetMapping("/register")
-    public String showRegistrationForm(Model model) {
-        model.addAttribute("user", new User());
-        return "register";
-    }
-
-    @PostMapping("/register")
-    public String registerUser(@ModelAttribute("user") User user) {
-        // Vérifier si l'utilisateur existe déjà
-        if (userService.existsByUsername(user.getUsername())) {
-            return "redirect:/register?error=username";
-        }
-        if (userService.existsByEmail(user.getEmail())) {
-            return "redirect:/register?error=email";
-        }
-
-        // Enregistrer l'utilisateur
-        User savedUser = userService.saveUser(user);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         
-        // Ajouter le rôle USER par défaut
-        userService.addRoleToUser(savedUser.getUsername(), "ROLE_USER");
+        // Changed from generateToken to createToken
+        String jwt = tokenProvider.createToken(authentication);
         
-        return "redirect:/login?registered";
+        return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
     }
 }
